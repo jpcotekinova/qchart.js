@@ -8,8 +8,14 @@
  * https://github.com/nnnick/Chart.js/blob/master/LICENSE.md
  */
 
-
-(function(){
+var ChartType = {
+	      BAR: 1,
+	 DOUGHNUT: 2,
+	     LINE: 3,
+	      PIE: 4,
+	    POLAR: 5,
+	    RADAR: 6
+};
 
 	"use strict";
 
@@ -646,24 +652,12 @@
 		},
 		//Request animation polyfill - http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
 		requestAnimFrame = helpers.requestAnimFrame = (function(){
-			return window.requestAnimationFrame ||
-				window.webkitRequestAnimationFrame ||
-				window.mozRequestAnimationFrame ||
-				window.oRequestAnimationFrame ||
-				window.msRequestAnimationFrame ||
-				function(callback) {
-					return window.setTimeout(callback, 1000 / 60);
+			return function(callback) {
+					return false;
 				};
 		})(),
 		cancelAnimFrame = helpers.cancelAnimFrame = (function(){
-			return window.cancelAnimationFrame ||
-				window.webkitCancelAnimationFrame ||
-				window.mozCancelAnimationFrame ||
-				window.oCancelAnimationFrame ||
-				window.msCancelAnimationFrame ||
-				function(callback) {
-					return window.clearTimeout(callback, 1000 / 60);
-				};
+			return false;
 		})(),
 		animationLoop = helpers.animationLoop = function(callback,totalSteps,easingString,onProgress,onComplete,chartInstance){
 
@@ -758,13 +752,6 @@
 				width = chart.canvas.width,
 				height = chart.canvas.height;
 
-			if (window.devicePixelRatio) {
-				ctx.canvas.style.width = width + "px";
-				ctx.canvas.style.height = height + "px";
-				ctx.canvas.height = height * window.devicePixelRatio;
-				ctx.canvas.width = width * window.devicePixelRatio;
-				ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-			}
 		},
 		//-- Canvas methods
 		clear = helpers.clear = function(chart){
@@ -849,6 +836,7 @@
 			if (reflow){
 				this.reflow();
 			}
+			return; /* rendering will be done by calling draw() from qml */
 			if (this.options.animation && !reflow){
 				helpers.animationLoop(
 					this.draw,
@@ -1967,23 +1955,6 @@
 	});
 
 	// Attach global event to resize each chart instance when the browser resizes
-	helpers.addEvent(window, "resize", (function(){
-		// Basic debounce of resize function so it doesn't hurt performance when resizing browser.
-		var timeout;
-		return function(){
-			clearTimeout(timeout);
-			timeout = setTimeout(function(){
-				each(Chart.instances,function(instance){
-					// If the responsive flag is set in the chart instance config
-					// Cascade the resize event down to the chart.
-					if (instance.options.responsive){
-						instance.resize(instance.render, true);
-					}
-				});
-			}, 50);
-		};
-	})());
-
 
 	if (amd) {
 		define(function(){
@@ -1993,22 +1964,13 @@
 		module.exports = Chart;
 	}
 
-	root.Chart = Chart;
-
 	Chart.noConflict = function(){
-		root.Chart = previous;
 		return Chart;
 	};
 
-}).call(this);
 
 (function(){
 	"use strict";
-
-	var root = this,
-		Chart = root.Chart,
-		helpers = Chart.helpers;
-
 
 	var defaultConfig = {
 		//Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
@@ -2308,11 +2270,6 @@
 (function(){
 	"use strict";
 
-	var root = this,
-		Chart = root.Chart,
-		//Cache a local reference to Chart.helpers
-		helpers = Chart.helpers;
-
 	var defaultConfig = {
 		//Boolean - Whether we should show a stroke on each segment
 		segmentShowStroke : true,
@@ -2491,10 +2448,6 @@
 }).call(this);
 (function(){
 	"use strict";
-
-	var root = this,
-		Chart = root.Chart,
-		helpers = Chart.helpers;
 
 	var defaultConfig = {
 
@@ -2867,11 +2820,6 @@
 (function(){
 	"use strict";
 
-	var root = this,
-		Chart = root.Chart,
-		//Cache a local reference to Chart.helpers
-		helpers = Chart.helpers;
-
 	var defaultConfig = {
 		//Boolean - Show a backdrop to the scale label
 		scaleShowLabelBackdrop : true,
@@ -3114,12 +3062,6 @@
 }).call(this);
 (function(){
 	"use strict";
-
-	var root = this,
-		Chart = root.Chart,
-		helpers = Chart.helpers;
-
-
 
 	Chart.Type.extend({
 		name: "Radar",
