@@ -114,7 +114,7 @@ Rectangle {
       width: chart_width;
       height: chart_height;
       chartAnimated: true;
-      chartAnimationEasing: Easing.InOutElastic;
+      chartAnimationEasing: Easing.OutElastic;
       chartAnimationDuration: 2000;
       chartData: ChartsData.ChartLineData;
       chartType: Charts.ChartType.LINE;
